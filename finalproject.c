@@ -115,9 +115,10 @@ pthread_join(tid1[0], NULL); //wait for producer thread to finish
 pthread_join(tid2[0], NULL); //wait for consumer thread to finish
 
 pthread_exit(NULL); //terminate threads
-sem_destroy(&mutex); //destroy semaphores
-sem_destroy(&full); 
-sem_destroy(&empty);
+sem_destroy(&readMutex); //destroy semaphores
+sem_destroy(&writeMutex); 
+sem_destroy(&readTry);
+sem_destroy(&resource);
 
 close(fp); //closes file
 }
