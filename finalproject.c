@@ -1,7 +1,4 @@
 //David DiPalermo
-//Mark Tushemereirwe
-//Tyler Matthews
-//Gregory Wood
 
 #define _REENTRANT
 #include <pthread.h>
@@ -15,6 +12,11 @@
 
 int readCount = 0;
 int writeCount = 0;
+int numRead = 0;
+int numWrite = 0;
+int totalRead = 0;
+int totalWrite = 0;
+int shared = 0;
 
 sem_t readMutex;
 sem_t writeMutex;
@@ -31,62 +33,74 @@ sem_t resource;
 //FILE *fp;
 
 void *read(void *arg){  //producer
-  //while(fscanf(fp, "%c", &newChar) != EOF){ //producer thread
+  while(totalRead < numRead){ //producer thread
+    sleep(1);    
+
     sem_wait(&readTry);
     sem_wait(&readMutex);
+
     readCount = readCount + 1;
-    //buffer[producer_loc] = newChar; // put new char in buffer
-    //producer_loc = (producer_loc + 1) % buffer_size;
+    totalRead = totalRead + 1;
+
     if(readCount == 1){
        sem_wait(&resource);
+       printf("Reader is holding the resource\n");
     }
+
     sem_post(&readMutex);
     sem_post(&readTry);
-    //}
 
+    printf("The value in shared resource is %d\n", shared);
     //critical section
 
     sem_wait(&readMutex);
     readCount = readCount - 1;
-    //buffer[producer_loc] = '*';
+    
     if(readCount == 0){
         sem_post(&resource);
+        printf("Reader has released the resource\n");
     }
     sem_post(&readMutex);
-    //sem_post(&full);
+  }
 }
 
 
 void *write(void *arg){  //consumer
-//while(buffer[consumer_loc] != '*'){ //wait till *
-   //sleep(1); //so no racing condition
-   //sem_wait(&full);
+while(totalWrite < numWrite){ //wait till all writers done
+   sleep(2); //so no racing condition
+
    sem_wait(&writeMutex);
    writeCount = writeCount + 1;
+   totalWrite = totalWrite + 1;
    
    if(writeCount == 1){
-      sem_wait(&tryRead);
+      sem_wait(&readTry); //lock reader out
+      printf("A Writer is trying to access the resource\n");
    }
-   //next_char = buffer[consumer_loc];
-   //consumer_loc = (consumer_loc + 1) % buffer_size;
    
    sem_post(&writeMutex);
-   //sem_post(&empty);
    
    //critical secttion
+   
    sem_wait(&resource);
-   //do write
+   
+   shared = shared + 1;
+
    sem_post(&resource);
+
+   printf("Writer has released the resource\n");
 
    //exit
    sem_wait(&writeMutex);
    writeCount = writeCount - 1;
+
    if(writeCount == 0){
       sem_post(&readTry);
+      printf("Writer is complete\n");
    }
+
    sem_post(&writeMutex);
    
-   //printf("%c", next_char); //prints next character
    //fflush(stdout);
    }
 }
@@ -95,6 +109,12 @@ void *write(void *arg){  //consumer
 main(int argc, char **argv){
 
 //fp = fopen("mytest.dat", "r"); // open mydata.dat
+
+printf("Enter how many readers you want: ");
+scanf("%d", &numRead);
+
+printf("Enter how many writers you want: ");
+scanf("%d", &numWrite);
 
 pthread_t tid1[1]; // id for thread 1
 pthread_t tid2[1]; // id for thread 2
@@ -120,5 +140,5 @@ sem_destroy(&writeMutex);
 sem_destroy(&readTry);
 sem_destroy(&resource);
 
-close(fp); //closes file
+//close(fp); //closes file
 }
