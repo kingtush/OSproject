@@ -1,5 +1,7 @@
 //David DiPalermo
 //Mark Tushemereirwe
+//Tyler Matthews
+//Gregory Wood
 
 #define _REENTRANT
 #include <pthread.h>
