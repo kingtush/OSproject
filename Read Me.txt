@@ -1,0 +1,5 @@
+David DiPalermo, Mark Tushemereirwe, Tyler Matthews, and Gregory Wood
+
+The way to compile our C program for the project is by using the command "gcc finalproject.c -lpthread -lrt" in the terminal
+
+The way to execute the program is by using "./a.out" in the terminal

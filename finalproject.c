@@ -1,7 +1,4 @@
-//David DiPalermo
-//Mark Tushemereirwe
-//Tyler Matthews
-//Gregory Wood
+//David DiPalermo, Mark Tushemereirwe, Tyler Matthews, and Gregory Wood
 
 #define _REENTRANT
 #include <pthread.h>
@@ -26,17 +23,8 @@ sem_t writeMutex;
 sem_t readTry;
 sem_t resource;
 
-//int producer_loc = 0;
-//int consumer_loc = 0;
-
-//char next_char;
-//char buffer[15];
-
-//char newChar;
-//FILE *fp;
-
-void *read(void *arg){  //producer
-  while(totalRead < numRead){ //producer thread
+void *read(void *arg){ 
+  while(totalRead < numRead){ //reader thread
     sleep(1);    
 
     sem_wait(&readTry);
@@ -68,7 +56,7 @@ void *read(void *arg){  //producer
 }
 
 
-void *write(void *arg){  //consumer
+void *write(void *arg){  
 while(totalWrite < numWrite){ //wait till all writers done
    sleep(2); //so no racing condition
 
@@ -89,6 +77,8 @@ while(totalWrite < numWrite){ //wait till all writers done
    
    shared = shared + 1;
 
+   printf("Writing\n");
+   
    sem_post(&resource);
 
    printf("Writer has released the resource\n");
@@ -103,15 +93,11 @@ while(totalWrite < numWrite){ //wait till all writers done
    }
 
    sem_post(&writeMutex);
-   
-   //fflush(stdout);
    }
 }
 
 
 main(int argc, char **argv){
-
-//fp = fopen("mytest.dat", "r"); // open mydata.dat
 
 printf("Enter how many readers you want: ");
 scanf("%d", &numRead);
@@ -143,5 +129,4 @@ sem_destroy(&writeMutex);
 sem_destroy(&readTry);
 sem_destroy(&resource);
 
-//close(fp); //closes file
 }
